@@ -1,7 +1,11 @@
 package mindtech.homework.pokemonassignment.data.dao
 
 import androidx.room.Dao
+import androidx.room.Query
 
 @Dao
-class PokemonDao {
+interface PokemonDao {
+    @Query("SELECT *" +
+            "FROM pokemons")
+    fun getPokemons()
 }

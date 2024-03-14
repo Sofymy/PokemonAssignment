@@ -28,7 +28,6 @@ object DatabaseModule {
         ).build()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     @Provides
     fun providePokemonDao(pokemonDatabase: PokemonDatabase): PokemonDao {
         return pokemonDatabase.pokemonDao()
