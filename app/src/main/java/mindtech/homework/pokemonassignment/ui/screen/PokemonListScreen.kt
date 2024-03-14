@@ -2,14 +2,18 @@
 
 package mindtech.homework.pokemonassignment.ui.screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -53,7 +57,7 @@ fun PokemonListScreenContent(
 
     LaunchedEffect(Unit) {
         viewModel.getTypes()
-        viewModel.getCatchedPokemon()
+        viewModel.getCaughtPokemon()
     }
 
     val scope = rememberCoroutineScope()
@@ -67,6 +71,11 @@ fun PokemonListScreenContent(
         ) {
             viewModel.getPokemonsByTypeId(it)
         }
+        OnlyShow(
+            onCheck = {
+
+            }
+        )
         ResultList(
             viewModel,
             onItemClicked = {
@@ -93,36 +102,52 @@ fun ResultList(
     onCatchClicked: (PokemonDetails) -> Unit,
     onReleaseClicked: (PokemonDetails) -> Unit
 ) {
-    val typeResult by viewModel.result.collectAsStateWithLifecycle()
-    val catchedPokemons by viewModel.catchedPokemons.collectAsStateWithLifecycle()
+    viewModel.getCaughtPokemon()
 
-    LazyColumn {
+    val typeResult by viewModel.result.collectAsStateWithLifecycle()
+    val caughtPokemons by viewModel.caughtPokemons.collectAsStateWithLifecycle()
+
+    LazyColumn(
+        modifier = Modifier.fillMaxWidth()
+    ) {
         items(typeResult){
-            var isCaught = false
-            for(pokemon in catchedPokemons){
+            val isCaught = mutableStateOf(false)
+            for(pokemon in caughtPokemons){
                 if(pokemon.name == it.name){
-                    isCaught = true
+                    isCaught.value = true
                 }
             }
             Row{
                 Card(
-                    modifier = Modifier.clickable {
-                        onItemClicked(it) }
-                        .border(1.dp, if(isCaught) Color.Yellow else Color.Blue)
+                    modifier = Modifier
+                        .clickable {
+                            onItemClicked(it)
+                        }
+                        .border(1.dp, if (isCaught.value) Color.Yellow else Color.Blue)
                 ) {
-                    Row {
+                    Row(
+                        modifier = Modifier.fillMaxHeight()
+                    ) {
                         Text(it.name)
                     }
                 }
                 Button(
+                    modifier = Modifier.background(
+                        if(isCaught.value) Color.Yellow
+                        else Color.Blue
+                    ),
                     onClick = {
-                        if(isCaught) onReleaseClicked(it)
-                        else onCatchClicked(it)
+                        if(isCaught.value) onReleaseClicked(it)
+                        else{
+                            onCatchClicked(it)
+                            isCaught.value = true
+                        }
                     }
                 ){
                     Text(
-                        text= if(isCaught) "Release"
-                        else "Catch"
+                        text= if(isCaught.value) {
+                            "Release"
+                        } else "Catch"
                     )
                 }
             }
@@ -143,12 +168,22 @@ fun TypeSelector(
             typeList,
             onTypeSelected
         )
-        OnlyShow()
     }
 }
 
 @Composable
-fun OnlyShow() {
+fun OnlyShow(
+    onCheck: (Boolean) -> Unit,
+) {
+    val checked = mutableStateOf(false)
+
+    Checkbox(
+        checked = checked.value,
+        onCheckedChange = {
+            checked!=checked
+            onCheck(it)
+        }
+    )
 }
 
 @Composable

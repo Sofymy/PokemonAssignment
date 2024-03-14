@@ -46,11 +46,11 @@ class PokemonListRepositoryImpl(
     override suspend fun insert(pokemon: PokemonDetails){
         pokemonDao.insert(PokemonEntityToDatabase(pokemon.name))
     }
-    override fun delete(pokemon: PokemonDetails) {
+    override suspend fun delete(pokemon: PokemonDetails) {
         pokemonDao.delete(PokemonEntityToDatabase(pokemon.name))
     }
 
-    override suspend fun getCatchedPokemons(): Flow<List<PokemonEntityToDatabase>> {
+    override suspend fun getCaughtPokemons(): Flow<List<PokemonEntityToDatabase>> {
         return pokemonDao.getCaughtPokemons()
     }
 }

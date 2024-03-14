@@ -11,7 +11,6 @@ import kotlinx.coroutines.launch
 import mindtech.homework.pokemonassignment.data.entities.PokemonDetails
 import mindtech.homework.pokemonassignment.data.entities.PokemonEntityToDatabase
 import mindtech.homework.pokemonassignment.data.entities.Type
-import mindtech.homework.pokemonassignment.data.entities.TypeWithId
 import mindtech.homework.pokemonassignment.data.repositories.PokemonListRepository
 import javax.inject.Inject
 
@@ -57,18 +56,18 @@ class PokemonListViewModel @Inject constructor(
         pokemonListRepository.insert(pokemon)
     }
 
-    fun delete(pokemon: PokemonDetails) {
+    suspend fun delete(pokemon: PokemonDetails) {
         pokemonListRepository.delete(pokemon)
     }
 
 
-    private val _catchedPokemons = MutableStateFlow(emptyList<PokemonEntityToDatabase>())
-    val catchedPokemons = _catchedPokemons.asStateFlow()
+    private val _caughtPokemons = MutableStateFlow(emptyList<PokemonEntityToDatabase>())
+    val caughtPokemons = _caughtPokemons.asStateFlow()
 
-    fun getCatchedPokemon() {
+    fun getCaughtPokemon() {
         viewModelScope.launch(Dispatchers.IO) {
-            pokemonListRepository.getCatchedPokemons().collectLatest {
-                _catchedPokemons.tryEmit(it)
+            pokemonListRepository.getCaughtPokemons().collectLatest {
+                _caughtPokemons.tryEmit(it)
             }
         }
     }

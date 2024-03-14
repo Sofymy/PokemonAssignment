@@ -18,5 +18,5 @@ interface PokemonDao {
     suspend fun insert(pokemon: PokemonEntityToDatabase)
 
     @Delete
-    fun delete(pokemon: PokemonEntityToDatabase)
+    suspend fun delete(pokemon: PokemonEntityToDatabase)
 }

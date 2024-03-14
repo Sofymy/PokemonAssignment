@@ -28,7 +28,7 @@ data class PokemonDetails (
     val cries: Any? = null,
     val forms: Any? = null,
     val gameIndices: Any? = null,
-    val height: Long,
+    val height: Long? = null,
     val heldItems: Any? = null,
     val id: Any? = null,
     val isDefault: Any? = null,
