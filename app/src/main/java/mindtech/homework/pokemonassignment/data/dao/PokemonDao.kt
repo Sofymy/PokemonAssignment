@@ -1,13 +1,22 @@
 package mindtech.homework.pokemonassignment.data.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
-import mindtech.homework.pokemonassignment.data.entities.Pokemon
+import mindtech.homework.pokemonassignment.data.entities.PokemonEntityToDatabase
 
 @Dao
 interface PokemonDao {
     @Query("SELECT * " +
             "FROM pokemons")
-    fun getPokemons(): Flow<List<Pokemon>>
+    fun getCaughtPokemons(): Flow<List<PokemonEntityToDatabase>>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(pokemon: PokemonEntityToDatabase)
+
+    @Delete
+    fun delete(pokemon: PokemonEntityToDatabase)
 }

@@ -1,8 +1,17 @@
 package mindtech.homework.pokemonassignment.viewmodels
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import mindtech.homework.pokemonassignment.data.repositories.PokemonDetailsRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import mindtech.homework.pokemonassignment.data.entities.PokemonDetails
+import mindtech.homework.pokemonassignment.data.entities.PokemonEntityToDatabase
+import mindtech.homework.pokemonassignment.data.entities.Type
+import mindtech.homework.pokemonassignment.data.entities.TypeWithId
 import mindtech.homework.pokemonassignment.data.repositories.PokemonListRepository
 import javax.inject.Inject
 
@@ -10,5 +19,58 @@ import javax.inject.Inject
 class PokemonListViewModel @Inject constructor(
     private val pokemonListRepository: PokemonListRepository
 ): ViewModel() {
+
+    private val _typeList = MutableStateFlow(emptyList<Type>())
+    val typeList = _typeList.asStateFlow()
+
+    fun getTypes() {
+        viewModelScope.launch(Dispatchers.IO) {
+            pokemonListRepository.getTypes().collectLatest {
+                _typeList.tryEmit(it.results)
+            }
+        }
+    }
+
+    private val _result = MutableStateFlow(emptyArray<PokemonDetails>())
+    val result = _result.asStateFlow()
+    fun getPokemonsByTypeId(type: Type) {
+        viewModelScope.launch(Dispatchers.IO) {
+            pokemonListRepository.getPokemonsByTypeId(substring(type.url)).collectLatest {
+                _result.tryEmit(it)
+            }
+        }
+    }
+
+    private fun substring(string: String): String {
+        return string.substringAfter("type/")
+    }
+
+    fun getPokemonsByName(name: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            pokemonListRepository.getPokemonByName(name).collectLatest {
+                _result.tryEmit(arrayOf(it))
+            }
+        }
+    }
+
+    suspend fun insert(pokemon: PokemonDetails) {
+        pokemonListRepository.insert(pokemon)
+    }
+
+    fun delete(pokemon: PokemonDetails) {
+        pokemonListRepository.delete(pokemon)
+    }
+
+
+    private val _catchedPokemons = MutableStateFlow(emptyList<PokemonEntityToDatabase>())
+    val catchedPokemons = _catchedPokemons.asStateFlow()
+
+    fun getCatchedPokemon() {
+        viewModelScope.launch(Dispatchers.IO) {
+            pokemonListRepository.getCatchedPokemons().collectLatest {
+                _catchedPokemons.tryEmit(it)
+            }
+        }
+    }
 
 }
